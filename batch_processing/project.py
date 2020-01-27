@@ -48,10 +48,6 @@ body = obj.get()['Body']
 
 xmlstr=body.read()
 
-#with open(xmlFile,'r') as fid:
- #  xmlstr = fid.read()
-
-
 xml_root = ET.fromstring(xmlstr)
 ascNodeTime = getxmlvalue(xml_root, "imageAnnotation/imageInformation/ascendingNodeTime")
 numBursts = getxmlattr(xml_root, 'swathTiming/burstList', 'count')
