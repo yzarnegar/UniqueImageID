@@ -9,7 +9,8 @@ import zipfile
 import fnmatch
 import pandas as pd
 from io import StringIO
-
+import geopandas as gpd 
+from shapely.geometry import Polygon
 
 def getxmlattr( xml_root, path, key):
         try:
@@ -50,7 +51,7 @@ def read_time(input_str, fmt="%Y-%m-%dT%H:%M:%S.%f"):
 class BurstDataFrame:
 
     def __init__(self):
-      self.df = pd.DataFrame(columns=['Node_Time','Burst_Start','Time_Difference','Track_Number','Burst_ID','Pass_Direction','Ground_Coordinate'])
+      self.df = gpd.GeoDataFrame(columns=['Node_Time','Burst_Start','Time_Difference','Track_Number','Burst_ID','Pass_Direction','geometry'])
     
     def getCoordinates(self, zipname):
         zf = zipfile.ZipFile(zipname, 'r')
@@ -71,8 +72,23 @@ class BurstDataFrame:
         return df_coordinates
 
     def burstCoords(self, geocoords, lineperburst, idx):
-        burstCoords = geocoords.loc[(geocoords['line']==idx*lineperburst) | (geocoords['line']==(idx+1)*lineperburst)].filter(['x', 'y'])
-        return burstCoords
+        firstLine = geocoords.loc[geocoords['line']==idx*lineperburst].filter(['x', 'y'])
+        secondLine = geocoords.loc[geocoords['line']==(idx+1)*lineperburst].filter(['x', 'y'])
+        X1=firstLine['x'].tolist()
+        Y1=firstLine['y'].tolist()
+        X2=secondLine['x'].tolist()
+        Y2=secondLine['y'].tolist()
+        X2.reverse()
+        Y2.reverse()
+        X = X1 + X2
+        Y= Y1 +Y2
+        poly = Polygon(zip(X,Y))
+        # burstCoords = pd.concat(firstLine , secondLine[::-1])
+        # poly = Polygon(zip(burstCoords['x'].tolist(), burstCoords['y'].tolist()))
+        #burstCoords = geocoords.loc[(geocoords['line']==idx*lineperburst) | (geocoords['line']==(idx+1)*lineperburst)].filter(['x', 'y'])
+        
+        #return burstCoords
+        return poly
       
     def update(self, zipname):
         zf = zipfile.ZipFile(zipname, 'r')
@@ -98,8 +114,9 @@ class BurstDataFrame:
             thisBurstCoords = self.burstCoords(geocords, lineperburst, index)
             print("#########")
             print(thisBurstCoords)
+            print(thisBurstCoords.area)
             # check if self.df has this dt for this track. If not append it
-            self.df = self.df.append({'Node_Time':ascNodeTime,'Burst_Start':sensingStart,'Time_Difference':dt, 'Track_Number':trackNumber,'Burst_ID':burstID, 'Pass_Direction':passtype,'Ground_Coordinate':0}, ignore_index=True)    
+            self.df = self.df.append({'Node_Time':ascNodeTime,'Burst_Start':sensingStart,'Time_Difference':dt, 'Track_Number':trackNumber,'Burst_ID':burstID, 'Pass_Direction':passtype,'geometry':thisBurstCoords}, ignore_index=True)    
     
         zf.close()    
 ''' 
