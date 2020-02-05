@@ -8,6 +8,8 @@ import boto3
 import zipfile
 import fnmatch
 import pandas as pd
+from io import StringIO
+
 
 def getxmlattr( xml_root, path, key):
         try:
@@ -50,7 +52,6 @@ class BurstDataFrame:
     def __init__(self):
       self.df = pd.DataFrame(columns=['Node_Time','Burst_Start','Time_Difference','Track_Number','Burst_ID','Pass_Direction','Ground_Coordinate'])
     
-
     def getCoordinates(self, zipname):
         zf = zipfile.ZipFile(zipname, 'r')
 
@@ -60,16 +61,19 @@ class BurstDataFrame:
 
         tiffname = os.path.join('/vsizip/' + zipname, match[0])
         cmd = "gdalinfo -json {} >> info.json".format(tiffname)
-        print(cmd)
         os.system(cmd)
         with open("info.json", 'r') as fid:
            info = json.load(fid)
 
 
         df_coordinates = pd.DataFrame(info['gcps']['gcpList'])
-        print(df_coordinates) 
         os.system('rm info.json')
+        return df_coordinates
 
+    def burstCoords(self, geocoords, lineperburst, idx):
+        burstCoords = geocoords.loc[(geocoords['line']==idx*lineperburst) | (geocoords['line']==(idx+1)*lineperburst)].filter(['x', 'y'])
+        return burstCoords
+      
     def update(self, zipname):
         zf = zipfile.ZipFile(zipname, 'r')
         xmlpath = os.path.join('*SAFE','annotation', 's1a-iw1-slc*xml')
@@ -84,19 +88,34 @@ class BurstDataFrame:
         passtype=getxmlvalue(xml_root, 'generalAnnotation/productInformation/pass')
         orbitnumber = int(getxmlvalue(xml_root, 'adsHeader/absoluteOrbitNumber'))
         trackNumber = (orbitnumber-73)%175 + 1
+        lineperburst = int(getxmlvalue(xml_root, 'swathTiming/linesPerBurst'))
+        geocords = self.getCoordinates(zipname)
 
         for index, burst in enumerate(list(burstList)):
             sensingStart = burst.find('azimuthTime').text
             dt = read_time(sensingStart)-read_time(ascNodeTime)
             burstID = str(trackNumber) + str(dt.seconds)
-            
+            thisBurstCoords = self.burstCoords(geocords, lineperburst, index)
+            print("#########")
+            print(thisBurstCoords)
             # check if self.df has this dt for this track. If not append it
             self.df = self.df.append({'Node_Time':ascNodeTime,'Burst_Start':sensingStart,'Time_Difference':dt, 'Track_Number':trackNumber,'Burst_ID':burstID, 'Pass_Direction':passtype,'Ground_Coordinate':0}, ignore_index=True)    
     
-        zf.close()
-  
+        zf.close()    
+''' 
+def write_dataframe_to_csv_on_s3(self,dataframe, filename):
+    DESTINATION = 's3://burstmetadata'
+    print("Writing {} records to {}".format(len(dataframe), filename))
+    # Create buffer
+    csv_buffer = StringIO()
+    # Write dataframe to buffer
+    dataframe.to_csv(csv_buffer, sep="|", index=False)
+    # Create S3 object
+    s3_resource = boto3.resource("s3")
+    # Write buffer to S3 object
+    s3_resource.Object(DESTINATION, filename).put(Body=csv_buffer.getvalue())
 
-   
+'''
 ####################
 
 if __name__ == "__main__":
@@ -115,6 +134,7 @@ if __name__ == "__main__":
 
     print(dfObj.df)
 
+    #  write_dataframe_to_csv_on_s3(dfObj.df, '3://burstmetadata/my_data')
     
 
 
