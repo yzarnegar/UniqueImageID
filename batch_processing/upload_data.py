@@ -84,6 +84,7 @@ def query_asf(snwe,  output_query_file, sat='Sentinel-1A'):
 
     return None
 
+'''
 snwe = (33.0, 35.0, -120, -117)
 query_file = 'query_asf.json'
 query_asf(snwe, query_file, sat='Sentinel-1A')
@@ -103,4 +104,4 @@ for url in urls:
     cmd = "rm " + urlname
     print("removing " + urlname)
     os.system(cmd)
-
+'''
