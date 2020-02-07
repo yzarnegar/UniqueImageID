@@ -14,7 +14,7 @@ import geopandas as gpd
 from shapely.geometry import Polygon
 
 from upload_data import s3filemanager
-#from query import query_asf, read_query
+from query import query_asf, read_query
 
 def getxmlattr( xml_root, path, key):
         try:
@@ -57,8 +57,11 @@ class BurstDataFrame:
     def __init__(self, url=None, swath=1):
       self.url = url
       self.swath = swath
-      self.df = gpd.GeoDataFrame(columns=['Node_Time','Burst_Start','Time_Difference','Track_Number','Burst_ID','Pass_Direction','geometry'])
-      self.df_tseries = gpd.GeoDataFrame(columns=['Burst_ID','Date', 'URL', 'Tiff_File', 'Annotation_File', 'Start_Line', 'End_Line'])
+      self.df = gpd.GeoDataFrame(columns=['burst_ID', 'pass_direction', 'longitude', 'latitude', 'geometry'])
+      self.df_tseries = gpd.GeoDataFrame(columns=['burst_ID', 'date', 'url', 'measurement', 'annotation', 'start', 'end'])
+
+      #self.df = gpd.GeoDataFrame(columns=['Node_Time','Burst_Start','Time_Difference','Track_Number','Burst_ID','Pass_Direction','geometry'])
+      #self.df_tseries = gpd.GeoDataFrame(columns=['Burst_ID','Date', 'URL', 'Tiff_File', 'Annotation_File', 'Start_Line', 'End_Line'])
  
     def getCoordinates(self, zipname):
         zf = zipfile.ZipFile(zipname, 'r')
@@ -90,8 +93,8 @@ class BurstDataFrame:
         X = X1 + X2
         Y= Y1 +Y2
         poly = Polygon(zip(X,Y))
- 
-        return poly
+        xc, yc = poly.centroid.xy
+        return poly, xc[0], yc[0]
       
     def update(self, zipname):
         zf = zipfile.ZipFile(zipname, 'r')
@@ -113,23 +116,44 @@ class BurstDataFrame:
             sensingStart = burst.find('azimuthTime').text
             dt = read_time(sensingStart)-read_time(ascNodeTime)
             burstID = "t"+str(trackNumber) + "s" + self.swath + "d" + str(dt.seconds)
-            thisBurstCoords = self.burstCoords(geocords, lineperburst, index)
+            thisBurstCoords, xc, yc = self.burstCoords(geocords, lineperburst, index)
             # check if self.df has this dt for this track. If not append it
             
-            burst_query = self.df.query("Burst_ID=='{}'".format(burstID))
+            burst_query = self.df.query("burst_ID=='{}'".format(burstID))
             if burst_query.empty:
                 print("adding {} to the dataframe".format(burstID))
+             
+                self.df = self.df.append({'burst_ID':burstID,
+                                          'pass_direction':passtype,
+                                          'longitude':xc,
+                                          'latitude':yc,
+                                          'geometry':thisBurstCoords.to_wkt()
+                                          }, ignore_index=True)
+
+                '''
                 self.df = self.df.append({'Node_Time':ascNodeTime,
                                           'Burst_Start':sensingStart,
                                           'Time_Difference':dt, 
                                           'Track_Number':trackNumber,
                                           'Burst_ID':burstID, 
                                           'Pass_Direction':passtype,
-                                          'geometry':thisBurstCoords}, ignore_index=True)
-                
+                                          'geometry':thisBurstCoords.to_wkt()}, ignore_index=True)
+                '''
+
             else:
                 print('The Unique ID {} already exists.'.format(burstID))
 
+ 
+            self.df_tseries = self.df_tseries.append({'burst_ID': burstID,
+                                                      'date': read_time(sensingStart).strftime("%Y-%m-%d"),
+                                                      'url': self.url,
+                                                      'measurement': tiff_path,
+                                                      'annotation': annotation_path,
+                                                      'start':index*lineperburst,
+                                                      'end':(index+1)*lineperburst},
+                                                       ignore_index=True)
+
+            '''
             self.df_tseries = self.df_tseries.append({'Burst_ID':burstID,
                                                   'Date':read_time(sensingStart).strftime("%Y-%m-%d"), 
                                                   'URL':self.url, 
@@ -137,13 +161,14 @@ class BurstDataFrame:
                                                   'Annotation_File':annotation_path, 
                                                   'Start_Line':index*lineperburst, 
                                                   'End_Line':(index+1)*lineperburst}, ignore_index=True)
-    
+            '''
+
         zf.close()    
 
 
     def to_csv(self, output_id, output_id_tseries):
-        self.df.to_csv(output_id)
-        self.df_tseries.to_csv(output_id_tseries)
+        self.df.to_csv(output_id, mode='w', index=False)
+        self.df_tseries.to_csv(output_id_tseries, mode='w', index=False)
 
     def to_json(self, output_id, output_id_tseries):
         data = self.df.to_json()
@@ -179,67 +204,35 @@ def write_dataframe_to_csv_on_s3(self,dataframe, filename):
 
 if __name__ == "__main__":
 
-    # query ASF dataset
-    dataDir = '/home/ubuntu/Downloads/test_data'
-    frames = [os.path.join(dataDir, 'S1A_IW_SLC__1SSV_20160326T135945_20160326T140013_010541_00FA9F_3D82.zip'), 
-            os.path.join(dataDir, 'S1A_IW_SLC__1SDV_20200121T132744_20200121T132811_030899_038BEA_CC3A.zip'),
-            os.path.join(dataDir, 'S1A_IW_SLC__1SDV_20200121T132744_20200121T132811_030899_038BEA_CC3A.zip')]
+    bucket_name = "burstdatabucket"
+    snwe = (34.0, 35.0, -120.0, -117.0)
+    output_query_file = "query_asf.json"
+    query_asf(snwe,  output_query_file, sat='Sentinel-1A')
+    urls_all = read_query(output_query_file)
 
-    frames = [os.path.join(dataDir, 'S1A_IW_SLC__1SSV_20160326T135945_20160326T140013_010541_00FA9F_3D82.zip'),
-              os.path.join(dataDir, 'S1A_IW_SLC__1SSV_20160326T135945_20160326T140013_010541_00FA9F_3D82.zip')]
+    print("number of files found: ", len(urls))
 
-    bucket_name = "s1data1359"
+    dfObj = BurstDataFrame()
+    for url in urls:
+      try:
+         print("downloading {}".format(url))
+         cmd = "wget {}".format(url)
+         os.system(cmd)
 
-    for ff in frames:
-        print(ff)
-        dfObj.url = "https/.../data.zip"
-        for swath in range(3):
-          print(swath)
-          dfObj.swath = str(swath+1)
-          dfObj.update(ff)
-    
-    print("writing data frames to csv")
-    dfObj.to_csv("burstID_database.csv", "burstID_database_tseries.csv")
+         frame = os.path.basename(url)
+         print("update database using {}".format(frame))
+         dfObj.url = url
+         for swath in range(3):
+            dfObj.swath = str(swath+1)
+            dfObj.update(frame)
+         os.system("rm {}".format(frame))
+         dfObj.to_csv("burstID_database.csv", "burstID_database_tseries.csv")
+      except:
+         print("something went wrong with {}".format(url))
 
-    #print("writing first data frames to json")
-    #dfObj.to_json("burstID_database.json", "burstID_database_tseries.json")    
-
-    uplodList = ["burstID_database.csv", "burstID_database_tseries.csv"] #,
-                 #"burstID_database.json", "burstID_database_tseries.json"]
+    uplodList = ["burstID_database.csv", "burstID_database_tseries.csv"]
     print("upload to s3")
     for filename in uplodList:
         dfObj.upload_to_s3(filename, bucket_name)
 
 
-
-
-
-
-
-
-
-
-#    data=dfObj.df.to_file("output.json", driver="GeoJSON")
-'''
-    #  write_dataframe_to_csv_on_s3(dfObj.df, '3://burstmetadata/my_data')
-    
-
-    # Write dataframe to buffer
-    csv_buffer = StringIO()
-    dfObj.df.to_csv(csv_buffer, index=False)
-
-    # Upload CSV to S3
-    s3_key = 'test.csv'
-    s3_resource = aws_session.resource('s3://burstmetadata')
-    s3_resource.Object(burstmetadata, s3_key).put(Body=csv_buffer.getvalue())
-
-
-
-        #df extract_metadata(zipname, df)
-
-        # extract the metadata form "annotation/s1*.xml" files
-
-        # Assign a unique burst ID for each burst in the frame
-
-
-'''
