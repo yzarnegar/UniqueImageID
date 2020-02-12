@@ -208,7 +208,7 @@ if __name__ == "__main__":
     snwe = (34.0, 35.0, -120.0, -117.0)
     output_query_file = "query_asf.json"
     query_asf(snwe,  output_query_file, sat='Sentinel-1A')
-    urls_all = read_query(output_query_file)
+    urls = read_query(output_query_file)
 
     print("number of files found: ", len(urls))
 
