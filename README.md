@@ -6,7 +6,7 @@ Alaska space facility has a joint mission with European space Agency called Sent
 
 # Architecture
 
-<img src="https://user-images.githubusercontent.com/57342758/74991778-d72a6d00-53fb-11ea-85e1-392e1b7b5468.png" width="400" height="400">
+<img src="https://user-images.githubusercontent.com/57342758/74991778-d72a6d00-53fb-11ea-85e1-392e1b7b5468.png" width="800" height="400">
 
 # Dataset
 # Engineering challenges
