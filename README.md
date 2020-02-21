@@ -25,7 +25,9 @@ Another challenge was creating the polygons from coordinates and I needed to do 
 <img width="786" alt="Screen Shot 2020-02-20 at 4 24 18 PM" src="https://user-images.githubusercontent.com/57342758/74992656-9a5f7580-53fd-11ea-9272-86086b03f6b5.png">
 
 
-
 # Trade-offs
+I used Athena to do simple queries since my data was on S3 and it was easy to just use Athena. However as the metadata included polygon and coordinated information it was best to use postGIS which is specifically used for geografical data.
 
+# Front-end
+A dash was build to meke it possible to get queries from metadata based on a given location of interest.
 
