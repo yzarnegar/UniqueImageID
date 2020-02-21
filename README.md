@@ -9,5 +9,7 @@ Alaska space facility has a joint mission with European space Agency called Sent
 <img src="https://user-images.githubusercontent.com/57342758/74991778-d72a6d00-53fb-11ea-85e1-392e1b7b5468.png" width="800" height="400">
 
 # Dataset
+
+<img width="604" alt="Screen Shot 2020-02-20 at 4 18 37 PM" src="https://user-images.githubusercontent.com/57342758/74992358-bca4c380-53fc-11ea-926f-0eb628b8157a.png">
 # Engineering challenges
 # Trade-offs
