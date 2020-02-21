@@ -9,7 +9,7 @@ Data from sentinel1 is stored on s3. However, it is private so I downloaded the 
 <img src="https://user-images.githubusercontent.com/57342758/74991778-d72a6d00-53fb-11ea-85e1-392e1b7b5468.png" width="800" height="400">
 
 # Dataset
-The data I worked with was about 250 GB and resulted csv files are 580 and 528 kb. Each frame has a zip file data and I used the tiff file and xml file inside the zip file to extract information about the coordinates, swats and metadata for each burst to create the polygons and unique burst IDs. The first CSV file includes unique burst IDs, time series data for the bursts and some information about the corresponding urls and date etc. The second CSV file includes unique burst IDs as well as coordinates and polygons information.  
+The data I worked with was about 250 GB and resulted csv files are 580 and 528 kb. Each frame has a zip file data and the tiff file and xml file inside the zip file were used to extract information about the coordinates, swats and metadata for each burst to create the polygons and unique burst IDs. The first CSV file includes unique burst IDs, time series data for the bursts and some information about the corresponding urls and date etc. The second CSV file includes unique burst IDs as well as coordinates and polygons information.  
 
 <img width="604" alt="Screen Shot 2020-02-20 at 4 18 37 PM" src="https://user-images.githubusercontent.com/57342758/74992358-bca4c380-53fc-11ea-926f-0eb628b8157a.png">
 
