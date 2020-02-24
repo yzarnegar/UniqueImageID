@@ -19,6 +19,10 @@ from query import query_asf, read_query
 from BurstDataFrame import BurstDataFrame 
 
 if __name__ == "__main__":
+    
+    """
+    A sample main driver to create the databases of the unique burst IDs.
+    """
 
     bucket_name = "burstdatabucket"
     snwe = (34.0, 35.0, -120.0, -117.0)

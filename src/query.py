@@ -6,6 +6,9 @@ from shapely.geometry import box
 
 
 def read_query(json_file):
+    """
+    The function to extract the URLs from the results of a query.
+    """
     with open(json_file) as fid:
         json_query = json.load(fid)
 
@@ -18,8 +21,13 @@ def read_query(json_file):
 
 def query_asf(snwe,  output_query_file, sat='Sentinel-1A'): 
     '''
-    modified from scottyhq github ...
-    takes list of [south, north, west, east]
+    The function to query the Sentinel-1 archive of Alaska Satellite Facility (ASF)
+    modified from scottyhq github.
+    
+    Parameters:
+    snwe: a list of coordinates as [south, north, west, east]
+    output_query_file: filename for the output jason file
+    sat: the satellite to query (Sentinel-1A or Sentinel-1B)
     '''
     print('Querying ASF Vertex...')
     miny, maxy, minx, maxx = snwe
@@ -27,7 +35,6 @@ def query_asf(snwe,  output_query_file, sat='Sentinel-1A'):
     polygonWKT = roi.to_wkt()
 
     baseurl = 'https://api.daac.asf.alaska.edu/services/search/param'
-    #relativeOrbit=$ORBIT
     data=dict(intersectsWith=polygonWKT,
             platform=sat,
             processingLevel='SLC',

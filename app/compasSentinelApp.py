@@ -12,6 +12,17 @@ from shapely.geometry import Point, Polygon
 import shapely
 
 def query_data(bbox, gdf):
+    """
+    The function to query a geodataframe based on a bounding box.
+    Parameters:
+        bbox: a list of coordinates as [south, north, west, east]
+        gdf: the geopandas dataframe whose geometry is polygon
+
+    Returns:
+        query_result: a data frame of all bursts whose boundary interset with input bbox
+        query: index of the rows of geopandas dataframe whose burst's boundaries interset with input bbox 
+    """
+
     s,n,w,e = bbox
     poly = Polygon(zip([w,e,e,w], [s,s,n,n]))
     x,y = poly.exterior.xy
@@ -23,6 +34,9 @@ def query_data(bbox, gdf):
 
 
 def plot_gpd(fig, gp_df, color='blue'):
+    """
+    plots the geopandas data frame
+    """
     for ii in range(gp_df.shape[0]):
         p1=gp_df.geometry.iloc[ii]
         x,y=p1.exterior.xy
@@ -35,6 +49,10 @@ def plot_gpd(fig, gp_df, color='blue'):
 ))
 
 def plot_poly(fig, x,y, color='blue'):
+    """
+    plots a polygon
+    """
+
     fig.add_trace(
     go.Scattergeo(
     lat = y,

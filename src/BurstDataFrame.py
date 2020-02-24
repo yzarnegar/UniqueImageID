@@ -14,14 +14,33 @@ from upload_data import s3filemanager
 
 
 class BurstDataFrame:
+    """
+    A class to create and update pandas dataframes for burst images.
+    """
 
     def __init__(self, url=None, swath=1):
+      """The constructor for BurstDataFrame class.
+      Parameters:
+          url: the URL of a Sentinel-1 frame
+          swath: the swath number of the frame (1,2 or 3)
+      """
+
       self.url = url
       self.swath = swath
       self.df = gpd.GeoDataFrame(columns=['burst_ID', 'pass_direction', 'longitude', 'latitude', 'geometry'])
       self.df_tseries = gpd.GeoDataFrame(columns=['burst_ID', 'date', 'url', 'measurement', 'annotation', 'start', 'end'])
 
     def getCoordinates(self, zipname):
+        """
+        The function to extract the Ground Control Points (GCP) of bursts from tiff file.
+
+        Parameters:
+            zipname: the name of the zipfile which contains the data
+
+        Returns:
+            df_coordinates: A pandas dataframe of GCPs 
+        """
+
         zf = zipfile.ZipFile(zipname, 'r')
 
         tiffpath = os.path.join('*SAFE','measurement', 's1a-iw{}-slc*tiff'.format(self.swath))
@@ -40,6 +59,20 @@ class BurstDataFrame:
         return df_coordinates, match[0]
 
     def burstCoords(self, geocoords, lineperburst, idx):
+        """
+        The function to extract coordinates for a given burst.
+
+        Parameters:
+            geocoords: A pandas dataframe of GCPs 
+            lineperburst: number of lines in each busrt
+            idx: index of the burst of interest
+
+        Returns:
+            poly: a shapely polygon represnting the boundary of the burst
+            xc: longitude of the centroid of the polygon
+            yc: latitude of the centroid of the plygon
+        """
+
         firstLine = geocoords.loc[geocoords['line']==idx*lineperburst].filter(['x', 'y'])
         secondLine = geocoords.loc[geocoords['line']==(idx+1)*lineperburst].filter(['x', 'y'])
         X1=firstLine['x'].tolist()
@@ -55,6 +88,12 @@ class BurstDataFrame:
         return poly, xc[0], yc[0]
       
     def update(self, zipname):
+        """
+        The function to update the dataframes
+        Parameters:
+            zipname: the zip file which contains the satellite data 
+        """
+
         zf = zipfile.ZipFile(zipname, 'r')
         xmlpath = os.path.join('*SAFE','annotation', 's1a-iw{}-slc*xml'.format(self.swath))
         match = fnmatch.filter(zf.namelist(), xmlpath)
@@ -105,10 +144,24 @@ class BurstDataFrame:
 
 
     def to_csv(self, output_id, output_id_tseries):
+        """
+        The function to store the data frames to CSV files
+        Parameters:
+            output_id: name of the output file for the Burst ID data frame
+            output_id_tseries: name of the output file for the time-series of the bursts 
+        """
+
         self.df.to_csv(output_id, mode='w', index=False)
         self.df_tseries.to_csv(output_id_tseries, mode='w', index=False)
 
     def upload_to_s3(self, filename, bucket_name):
+        """
+        The function to upload a file to S3
+        Parameters:
+            filename: the path of the file to be uploaded
+            bucket_name: the name of the bucket on S3
+        """
+
         fileObj = s3filemanager()
         fileObj.set_bucket_name(bucket_name)
         fileObj.put_file(filename)
@@ -116,37 +169,59 @@ class BurstDataFrame:
        
 
 def getxmlattr( xml_root, path, key):
-        try:
-            res = xml_root.find(path).attrib[key]
-        except:
-            raise Exception('Cannot find attribute %s at %s'%(key, path))
+    """
+    Function to extract the attribute of an xml key
+    """
 
-        return res
+    try:
+        res = xml_root.find(path).attrib[key]
+    except:
+        raise Exception('Cannot find attribute %s at %s'%(key, path))
+
+    return res
 
 def getxmlvalue( xml_root, path):
-        try:
-            res = xml_root.find(path).text
-        except:
-            raise Exception('Tag= %s not found'%(path))
+    """
+    Function to extract value in the xml for a given path
+    """
 
-        if res is None:
-            raise Exception('Tag = %s not found'%(path))
+    try:
+        res = xml_root.find(path).text
+    except:
+        raise Exception('Tag= %s not found'%(path))
 
-        return res
+    if res is None:
+        raise Exception('Tag = %s not found'%(path))
+
+    return res
 
 def getxmlelement(xml_root,  path):
-        try:
-            res = xml_root.find(path)
-        except:
-            raise Exception('Cannot find path %s'%(path))
+    """
+    extract an elemnet of a xml file
+    """
 
-        if res is None:
-            raise Exception('Cannot find path %s'%(path))
+    try:
+        res = xml_root.find(path)
+    except:
+        raise Exception('Cannot find path %s'%(path))
 
-        return res
+    if res is None:
+        raise Exception('Cannot find path %s'%(path))
+
+    return res
 
 
 def read_time(input_str, fmt="%Y-%m-%dT%H:%M:%S.%f"):
+    """
+    The function to convert a string to a datetime object
+    Parameters:
+        input_str: A string which contains the data time with the format of fmt
+        fmt: the format of input_str
+
+    Returns:
+        dt: python's datetime object
+    """
+
     dt = datetime.datetime.strptime(input_str, fmt)
     return dt
 
