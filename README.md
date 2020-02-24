@@ -30,3 +30,4 @@ I used Athena to do simple queries since my data was on S3 and it was easy to ju
 # Front-end
 A dash was build to meke it possible to get queries from metadata based on a given location of interest.
 
+http://34.214.199.22:8050
