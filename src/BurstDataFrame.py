@@ -9,7 +9,7 @@ import fnmatch
 import pandas as pd
 import geopandas as gpd 
 from shapely.geometry import Polygon
-from upload_data import s3filemanager
+from upload_data import s3UploadDownload
 
 
 
@@ -162,8 +162,7 @@ class BurstDataFrame:
             bucket_name: the name of the bucket on S3
         """
 
-        fileObj = s3filemanager()
-        fileObj.set_bucket_name(bucket_name)
+        fileObj = s3UploadDownload(bucket_name)
         fileObj.put_file(filename)
         
        

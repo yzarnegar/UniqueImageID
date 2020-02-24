@@ -10,12 +10,12 @@ from shapely.geometry import box
 import requests
 
 
-class s3filemanager:
+class s3UploadDownload:
     """
     A class to upload/pull files to/from S3.
     """
 
-    def __init__(self):
+    def __init__(self, bucket_name=None):
         """
         constructor of the class. 
         """
@@ -25,15 +25,6 @@ class s3filemanager:
         )
         self.client = session.client('s3')
         self.resource = session.resource('s3')
-        self.bucket_name = None
-
-    def set_bucket_name(self, bucket_name):
-        """
-        Sets the bucket name
-        Parameters:
-            bucket_name
-        """
-
         self.bucket_name = bucket_name
 
     def pull_file(self, file_name):
@@ -66,15 +57,6 @@ class s3filemanager:
         except ClientError:
             return False
         return True
-
-    def check_bucket_exists(self):
-        """
-        Check if the bucket exists
-        """
-
-        if not self.bucket_name:
-            tb = sys.exc_info()[2]
-            raise NameError("bucket_name not assigned").with_traceback(tb)
 
 
 
