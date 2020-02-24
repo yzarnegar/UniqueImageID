@@ -11,7 +11,8 @@ Data from Sentinel-1 is stored on s3. However, it is private so I downloaded the
 
 # Dataset
 
-The data that I used was about 250 GB downloded from ASF data search Vertex : https://search.asf.alaska.edu/#/?resultsLoaded=true&zoom=2.908586969716242&center=-6.524393,42.950243&searchType=Geographic%20Search&granule=S1B_IW_RAW__0SDV_20200224T172504_20200224T172532_020414_026AD8_3197-RAW 
+The data that I used was about 250 GB downloded from ASF data search Vertex : https://asf.alaska.edu.
+
 Each frame has a zip file data (about 5 GB) and the tiff file and xml file inside the zip file were used to extract information about the coordinates, swats and metadata for each burst to create the polygons and unique burst IDs. The first CSV file (580 kb) includes unique burst IDs, time series data for the bursts and some information about the corresponding urls and date etc. The second CSV file (528 kb) includes unique burst IDs as well as coordinates and polygons information.  The location that was covered was south California and part of Nevada and the data was downloded for 3 consecutive months.
 
 
