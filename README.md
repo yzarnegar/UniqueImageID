@@ -1,7 +1,7 @@
 # CompasSentinel
 An address book for satellite images
 # Introduction
-Alaska space facility has a joint mission with European space Agency called Sentinel-1, having two satellites capturing the radar images from the earth. At ASF website you can query any location of favorite and download image data for it which are zip files for each frame including the image data and some meta data as well.   Each of these images cover a vast location called frame. Each frame includes 3 parts called swath. However, Researchers and scientists who work with these data are interested in tracking units of images called bursts for more focused studies through time. They might be interested to just study a small location such as a city however there is no path or indicator to that specific burst and they should download the whole frame data and find the bursts they are interested in it. As a solution to this problem, I created a database including meta data information for each of the bursts and created a unique ID for each of them.  I also extracted the location and coordinate information for the bursts and created the polygons to make it possible to qurey based on polygon information.  
+Alaska space facility (ASF) has a joint mission with European space Agency (ESA) called Sentinel-1, having two satellites capturing the radar images from the earth. At ASF website you can query any location of favorite and download image data for it which are zip files for each frame including the image data and some meta data as well.   Each of these images cover a vast location called frame. Each frame includes 3 parts called swath. However, Researchers and scientists who work with these data are interested in tracking units of images called bursts for more focused studies through time. They might be interested to just study a small location such as a city however there is no path or indicator to that specific burst and they should download the whole frame data and find the bursts they are interested in it. As a solution to this problem, I created a database including meta data information for each of the bursts and created a unique ID for each of them.  I also extracted the location and coordinate information for the bursts and created the polygons to make it possible to qurey based on polygon information.  
 
 
 # Architecture
@@ -11,9 +11,10 @@ Data from Sentinel-1 is stored on s3. However, it is private so I downloaded the
 
 # Dataset
 
-The data that I used was about 250 GB downloded from ASF data search Vertex : https://asf.alaska.edu.
+The data that I used was about 250 GB downloded from ASF: https://asf.alaska.edu.
+The location was south California and part of Nevada and the data was downloded for 3 consecutive months.
 
-Each frame has a zip file data (about 5 GB) and the tiff file and xml file inside the zip file were used to extract information about the coordinates, swats and metadata for each burst to create the polygons and unique burst IDs. The first CSV file (580 kb) includes unique burst IDs, time series data for the bursts and some information about the corresponding urls and date etc. The second CSV file (528 kb) includes unique burst IDs as well as coordinates and polygons information.  The location that was covered was south California and part of Nevada and the data was downloded for 3 consecutive months.
+Each frame has a zip file data (about 5 GB) and the tiff file and xml file inside the zip file were used to extract information about the coordinates, swats and metadata for each burst to create the polygons and unique burst IDs. The first CSV file (580 kb) includes unique burst IDs, time series data for the bursts and some information about the corresponding urls and date etc. The second CSV file (528 kb) includes unique burst IDs as well as coordinates and polygons information.  
 
 
 
@@ -29,7 +30,7 @@ Another challenge was creating the polygons from coordinates and I needed to do 
 
 
 # Trade-offs
-I used Athena to do simple queries since my data was on S3 and it was easy to just use Athena. However as the metadata included polygon and coordinated information it was best to use postGIS which is specifically used for geografical data.
+I used Athena to do simple queries since my data was on S3 and it was easy to just use Athena. However as the metadata included polygons and coordinates information it was best to use postGIS database which is specifically used for geografical data.
 
 # Front-end
 A dash was built to get queries from metadata based on a given location of interest. Using compasSentinel app, it is posibble to find the bursts associated with a given location and all the information related to that bursts also are provided.
