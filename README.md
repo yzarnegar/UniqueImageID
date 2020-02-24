@@ -5,7 +5,7 @@ Alaska space facility (ASF) has a joint mission with European space Agency (ESA)
 
 
 # Architecture
-Data from Sentinel-1 is stored on s3. However, it is private so I downloaded the data from ASF. On my EC2s, using python I extract the information that I needed about the metadata and coordinates from zip files, and did some processing and created pandas data frames including information about the bursts and save those as CSV files on my s3 bucket. Then I used Athena and created a database including tables for the bursts to get query from. However since the data is geographical, I also imported csv files into the postGIS and created tables as it is specilized for getting queries from this type of data.
+Data from Sentinel-1 is stored on s3. However, it is private so I downloaded the data from ASF. On my EC2s, using python I extract the information that I needed about the metadata and coordinates from zip files, and did some processing and created pandas data frames including information about the bursts and save those as CSV files on my s3 bucket. Then I used Athena and created a database including tables for the bursts to get query from. However since the data is geographical, I also imported csv files into the PostGIS as is specilized for getting queries from this type of data.
 
 <img width="878" alt="Screen Shot 2020-02-24 at 12 56 25 PM" src="https://user-images.githubusercontent.com/57342758/75190475-41e1ee00-5705-11ea-9da4-f11692af1aa8.png">
 
@@ -30,7 +30,7 @@ Another challenge was creating the polygons from coordinates and I needed to do 
 
 
 # Trade-offs
-I used Athena to do simple queries since my data was on S3 and it was easy to just use Athena. However as the metadata included polygons and coordinates information it was best to use postGIS database which is specifically used for geografical data.
+I used Athena to do simple queries since my data was on S3 and it was easy to just use Athena. However as the metadata included polygons and coordinates information it was best to use PostGIS database which is specifically used for geografical data.
 
 # Front-end
 A dash was built to get queries from metadata based on a given location of interest. Using CompasSentinel app, it is posibble to find the bursts associated with a given location and all the information related to that bursts also are provided.
