@@ -33,6 +33,6 @@ Another challenge was creating the polygons from coordinates and I needed to do 
 I used Athena to do simple queries since my data was on S3 and it was easy to just use Athena. However as the metadata included polygons and coordinates information it was best to use postGIS database which is specifically used for geografical data.
 
 # Front-end
-A dash was built to get queries from metadata based on a given location of interest. Using compasSentinel app, it is posibble to find the bursts associated with a given location and all the information related to that bursts also are provided.
+A dash was built to get queries from metadata based on a given location of interest. Using CompasSentinel app, it is posibble to find the bursts associated with a given location and all the information related to that bursts also are provided.
 
 http://34.214.199.22:8050
