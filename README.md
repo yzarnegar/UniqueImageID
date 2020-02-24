@@ -6,7 +6,8 @@ Alaska space facility has a joint mission with European space Agency called Sent
 
 # Architecture
 Data from sentinel1 is stored on s3. However, it is private so I downloaded the data from ASF. On my EC2s, using python I extract the information that I needed about the metadata and coordinates from zip files, and did some processing and created pandas data frame including information about the burst and save those as CSV files on my s3 bucket. Then I used Athena and created a database including tables for the bursts to get query from. 
-<img src="https://user-images.githubusercontent.com/57342758/74991778-d72a6d00-53fb-11ea-85e1-392e1b7b5468.png" width="800" height="400">
+
+<img width="878" alt="Screen Shot 2020-02-24 at 12 56 25 PM" src="https://user-images.githubusercontent.com/57342758/75190475-41e1ee00-5705-11ea-9da4-f11692af1aa8.png">
 
 # Dataset
 The data I worked with was about 250 GB and resulted csv files are 580 and 528 kb. Each frame has a zip file data and the tiff file and xml file inside the zip file were used to extract information about the coordinates, swats and metadata for each burst to create the polygons and unique burst IDs. The first CSV file includes unique burst IDs, time series data for the bursts and some information about the corresponding urls and date etc. The second CSV file includes unique burst IDs as well as coordinates and polygons information.  
