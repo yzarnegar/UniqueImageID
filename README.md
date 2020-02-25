@@ -5,7 +5,7 @@ Sentinel-1 mission from the European Space Agency (ESA) captures radar images fr
 
 
 # Architecture
-The Sentinel-1 data from ASF are stored on a private s3 bucket. The provided tools allow to query ASF and download the data from ASF to a local machine (e.g., an EC2s instance), extract the required metadata (using python libraries) and coordinates (using GDAL), create a geopandas dataframe which then can be stored (e.g, in CSV format) and uploaded to S3 bucket. 
+The Sentinel-1 data from ASF are stored on a private s3 bucket. The provided tools allow to query ASF and download the data from ASF to EC2s instance, extract the required metadata (using python libraries) and coordinates (using GDAL), create a geopandas dataframe which then can be stored (e.g, in CSV format) and uploaded to S3 bucket. 
 
 I was able to use Athena on AWS to create a database including tables for the bursts to query the database. Since the database is geographical, I also imported csv files into the PostGIS which is specilized for getting queries from geospatial data.
 
