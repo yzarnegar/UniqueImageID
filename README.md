@@ -16,7 +16,7 @@ I was able to use Athena on AWS to create a database including tables for the bu
 The data that I used was about 250 GB downloded from ASF: https://asf.alaska.edu.
 The location was south California and part of Nevada and spans 3 consecutive months.
 
-Each frame has a zip file data (about 5 GB) and the tiff file and xml file inside the zip file were used to extract information about the coordinates, swats and metadata for each burst to create the polygons and unique burst IDs. The first CSV file (580 kb) includes unique burst IDs, time series data for the bursts and some information about the corresponding urls and date etc. The second CSV file (528 kb) includes unique burst IDs as well as coordinates and polygons information.  
+Each frame has a zip file (about 2.5 to 4.5 GB) and the tiff file and xml file inside the zip file were used to extract information about the coordinates, swats and metadata for each burst to create the polygons and unique burst IDs. The first CSV file (580 kb) includes unique burst IDs, time series data for the bursts and some information about the corresponding urls and date etc. The second CSV file (528 kb) includes unique burst IDs as well as coordinates and polygons information.  
 
 
 
@@ -32,9 +32,9 @@ Another challenge was creating the polygons from coordinates and I needed to do 
 
 
 # Trade-offs
-I used Athena to do simple queries since my data was on S3 and it was easy to just use Athena. However as the metadata included polygons and coordinates information it was best to use PostGIS database which is specifically used for geografical data.
+I used Athena to do simple queries since my data was on S3 and it was easy to just use Athena. However as the metadata included polygons and coordinates information it was best to use PostGIS database which is specifically used for geospatial data.
 
 # Front-end
-A dashboard was built using DASH and Plotly as an interactive web app to get queries from burst's metadata based on a given location of interest. Using CompasSentinel app, it is posibble to find the bursts associated with a given location and all the information related to that bursts also are provided.
+A dashboard was built using DASH and Plotly as an interactive web app to get queries from burst's metadata based on a given location of interest. Using CompasSentinel app, it is posibble to find the bursts associated with a given location and all the information related to that bursts also are provided. The returned query is enough information to download only a specific burst from ASF using existing tools such as GDAL.
 
 http://34.214.199.22:8050
