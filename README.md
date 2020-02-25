@@ -5,14 +5,16 @@ Sentinel-1 mission from the European Space Agency (ESA) captures radar images fr
 
 
 # Architecture
-Data from Sentinel-1 is stored on s3. However, it is private so I downloaded the data from ASF. On my EC2s, using python I extract the information that I needed about the metadata and coordinates from zip files, and did some processing and created pandas data frames including information about the bursts and save those as CSV files on my s3 bucket. Then I used Athena and created a database including tables for the bursts to get query from. However since the data is geographical, I also imported csv files into the PostGIS as is specilized for getting queries from this type of data.
+The Sentinel-1 data from ASF are stored on a private s3 bucket. The provided tools allow to query ASF and download the data from ASF to a local machine (e.g., an EC2s instance), extract the required metadata (using python libraries) and coordinates (using GDAL), create a geopandas dataframe which then can be stored (e.g, in CSV format) and uploaded to S3 bucket. 
+
+I was able to use Athena on AWS to create a database including tables for the bursts to query the database. Since the database is geographical, I also imported csv files into the PostGIS which is specilized for getting queries from geospatial data.
 
 <img width="878" alt="Screen Shot 2020-02-24 at 12 56 25 PM" src="https://user-images.githubusercontent.com/57342758/75190475-41e1ee00-5705-11ea-9da4-f11692af1aa8.png">
 
 # Dataset
 
 The data that I used was about 250 GB downloded from ASF: https://asf.alaska.edu.
-The location was south California and part of Nevada and the data was downloded for 3 consecutive months.
+The location was south California and part of Nevada and spans 3 consecutive months.
 
 Each frame has a zip file data (about 5 GB) and the tiff file and xml file inside the zip file were used to extract information about the coordinates, swats and metadata for each burst to create the polygons and unique burst IDs. The first CSV file (580 kb) includes unique burst IDs, time series data for the bursts and some information about the corresponding urls and date etc. The second CSV file (528 kb) includes unique burst IDs as well as coordinates and polygons information.  
 
